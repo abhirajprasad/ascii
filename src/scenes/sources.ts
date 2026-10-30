@@ -127,7 +127,11 @@ export function textScene(text: string, options: TextSceneOptions = {}): Scene {
     canvas.width = Math.ceil(widest / fill);
     canvas.height = Math.ceil((size * 1.15 * lines.length) / 0.8);
     ctx.font = font;
-    ctx.fillStyle = '#fff';
+    // A vertical falloff gives the letters a range of tones to draw with, not one flat value.
+    const shade = ctx.createLinearGradient(0, canvas.height * 0.2, 0, canvas.height * 0.8);
+    shade.addColorStop(0, '#ffffff');
+    shade.addColorStop(1, '#6e6e6e');
+    ctx.fillStyle = shade;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const lh = size * 1.15;

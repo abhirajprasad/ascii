@@ -124,6 +124,10 @@ export const palettes = {
   azure: new Palette('azure', ['#04121f', '#0d4a78', '#3d8fc2', '#a8d8ee', '#f6fdff']),
   /** Warm cream on umber. */
   amber: new Palette('amber', ['#14100a', '#4d3a1c', '#a8823d', '#ecd18a', '#fff8e3']),
+  /** Terminal green. */
+  matrix: new Palette('matrix', ['#02140a', '#07592a', '#0bbf53', '#5dff9d', '#e4fff0']),
+  /** Deep red to coral. */
+  crimson: new Palette('crimson', ['#190507', '#6f0f1b', '#d9252f', '#ff8f7a', '#fff1ec']),
 } as const;
 
 export type PaletteName = keyof typeof palettes;

@@ -1,5 +1,5 @@
 import { CellBuffer, CellGeometry, DEFAULT_GEOMETRY, Look, SHAPE_RECT, SHAPE_ROUND, Style } from '../cells.js';
-import { hex, pack } from '../color.js';
+import { hex, pack, Palette, PaletteName, resolvePalette } from '../color.js';
 import { Field } from '../field.js';
 import { hash2, smoothstep } from '../math.js';
 
@@ -27,6 +27,8 @@ export interface TilesOptions {
   inkDepth: number;
   /** Keep hues but flip neutrals for a light theme. */
   invertNeutrals: boolean;
+  /** Recolor every tile from this ramp by its tone. Default keeps the scene's own color. */
+  palette: PaletteName | Palette | null;
   /** Looks for tagged cells, by Field id. */
   marks: Record<number, TileMark>;
   background: string;
@@ -46,6 +48,7 @@ const DEFAULTS: TilesOptions = {
   minCoverage: 0.1,
   inkDepth: 0.72,
   invertNeutrals: false,
+  palette: null,
   marks: {},
   background: '#191919',
   grid: null,
@@ -104,6 +107,7 @@ export function tiles(options: Partial<TilesOptions> = {}): Style & { options: T
       const shape = o.radius > 0 ? SHAPE_ROUND : SHAPE_RECT;
       const codes = [...o.glyphs].map((g) => g.codePointAt(0)!);
       const dim = o.dimGlyph.codePointAt(0) ?? 46;
+      const ramp = o.palette ? resolvePalette(o.palette) : null;
       for (let row = 0, i = 0; row < f.rows; row++) {
         for (let col = 0; col < f.cols; col++, i++) {
           const cov = f.a[i]!;
@@ -119,6 +123,10 @@ export function tiles(options: Partial<TilesOptions> = {}): Style & { options: T
           }
           if (cov < o.minCoverage) continue;
           let r = f.r[i]! / cov, g = f.g[i]! / cov, b = f.b[i]! / cov;
+          if (ramp) {
+            const c = ramp.packed(0.2 + 0.75 * (0.2126 * r + 0.7152 * g + 0.0722 * b));
+            r = (c & 255) / 255; g = ((c >>> 8) & 255) / 255; b = ((c >>> 16) & 255) / 255;
+          }
           if (o.invertNeutrals) {
             const sat = Math.max(r, g, b) - Math.min(r, g, b);
             const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;

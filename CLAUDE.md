@@ -6,6 +6,7 @@ An ASCII art engine. Read [docs/CRAFT.md](docs/CRAFT.md) before making or changi
 
 - `src/` is the library. The flow is Scene → Field → Style → CellBuffer → Surface; keep those stages independent.
 - `src/raster.ts` is the software rasterizer. `src/subjects/` holds meshes, `src/scenes/` holds animated scenes, `src/styles/` holds Field-to-cell mappers, `src/surfaces/` holds output targets.
+- `src/chat/` turns words into art. `ArtSpec` (`spec.ts`) is the contract: the local parser (`parse.ts`, `vocab.ts`) and a model (`director.ts`) each produce one, and `build.ts` turns it into a scene and style. Anything from a model goes through `normalizeSpec`, and its SVG only ever loads as an image, never into the DOM. New scenes and looks need adding to `spec.ts`, so the rules a model reads stay complete.
 - `examples/<name>/` holds a demo as `page.html` plus `main.ts`. The page is a fragment with no doctype, because the same build publishes as a Claude Artifact (`dist/artifacts/`) and a standalone file (`dist/demos/`).
 - Only `src/cli.ts` and `src/png.ts` may import Node modules. Everything exported from `src/index.ts` has to bundle for the browser.
 

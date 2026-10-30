@@ -7,6 +7,9 @@ const q5 = (c: number) =>
   (((c & 0xf8) >>> 3) | ((c & 0xf800) >>> 6) | ((c & 0xf80000) >>> 9) | (((c >>> 24) & 0xf8) << 12)) >>> 0;
 const q8 = (c: number) => (c & 0xf8f8f8f8) >>> 0;
 
+// Big enough for thousands of sprites, small enough that a page can run several surfaces.
+const ATLAS_SIZE = 1024;
+
 /**
  * A grid of small drawings on one canvas. Each distinct key or glyph is drawn once
  * and blitted from then on, which is far cheaper than a path or fillText per cell.
@@ -22,21 +25,21 @@ class Atlas {
   slotH = 1;
 
   constructor() {
-    this.canvas.width = 2048;
-    this.canvas.height = 2048;
+    this.canvas.width = ATLAS_SIZE;
+    this.canvas.height = ATLAS_SIZE;
     this.ctx = this.canvas.getContext('2d')!;
   }
 
   reset(slotW: number, slotH: number): void {
     this.slotW = slotW;
     this.slotH = slotH;
-    this.across = Math.max(1, Math.floor(2048 / slotW));
-    this.capacity = this.across * Math.max(1, Math.floor(2048 / slotH));
+    this.across = Math.max(1, Math.floor(ATLAS_SIZE / slotW));
+    this.capacity = this.across * Math.max(1, Math.floor(ATLAS_SIZE / slotH));
     this.flush();
   }
 
   private flush(): void {
-    this.ctx.clearRect(0, 0, 2048, 2048);
+    this.ctx.clearRect(0, 0, ATLAS_SIZE, ATLAS_SIZE);
     this.slots.clear();
   }
 

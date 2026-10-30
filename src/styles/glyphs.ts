@@ -20,6 +20,10 @@ export interface GlyphsOptions {
   cutoff: number;
   subjectFocus: number;
   jitter: number;
+  /** Pick glyphs at random rather than by tone; tone then only sets color. For digital rain. */
+  scatter: boolean;
+  /** Scatter re-rolls per second per cell. */
+  shimmer: number;
   background: string;
   grid: string | null;
   glow: number;
@@ -41,6 +45,8 @@ export function glyphs(options: Partial<GlyphsOptions> = {}): Style & { options:
     cutoff: 0.04,
     subjectFocus: 0,
     jitter: 0.04,
+    scatter: false,
+    shimmer: 2,
     background: '#050709',
     grid: null,
     glow: 0,
@@ -66,7 +72,7 @@ export function glyphs(options: Partial<GlyphsOptions> = {}): Style & { options:
       return { background: o.background, grid: o.grid, glow: o.glow };
     },
 
-    apply(f: Field, c: CellBuffer): void {
+    apply(f: Field, c: CellBuffer, t: number): void {
       const pal = resolvePalette(o.palette);
       if (!cached || cached.key !== o.ramp) cached = { key: o.ramp, value: ramp(o.ramp) };
       const rmp = cached.value;
@@ -78,8 +84,13 @@ export function glyphs(options: Partial<GlyphsOptions> = {}): Style & { options:
           if (o.subjectFocus > 0) v *= focusMask(f.cx(col), f.cy(row), o.subjectFocus);
           v = tone(v);
           if (v < o.cutoff) continue;
-          const jittered = v + (hash2(col, row, 2) - 0.5) * o.jitter;
-          const code = rmp.pick(jittered);
+          let code: number;
+          if (o.scatter) {
+            const tick = Math.floor(t * o.shimmer + hash2(col, row, 4) * 97);
+            code = rmp.codes[(hash2(col, row, tick) * rmp.codes.length) | 0]!;
+          } else {
+            code = rmp.pick(v + (hash2(col, row, 2) - 0.5) * o.jitter);
+          }
           if (code === 32) continue;
           c.glyph[i] = code;
           if (field) {
