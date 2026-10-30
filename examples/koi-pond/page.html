@@ -1,0 +1,73 @@
+<title>Koi Pond</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  /* A pond seen from straight above. Everything is monospace, because everything here is made of cells. */
+  :root {
+    color-scheme: dark;
+    --bg: #191919;
+    --ink: #ece9e2;
+    --muted: #94928c;
+    --rule: #5f5d58;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  :root[data-pond="light"] {
+    color-scheme: light;
+    --bg: #f3f2ef;
+    --ink: #1c1c1a;
+    --muted: #6f6e69;
+    --rule: #a9a8a2;
+  }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 12.5px/1.75 var(--mono); overflow: hidden; }
+  #art { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; }
+
+  nav {
+    position: fixed; z-index: 2; left: 0; right: 0; top: max(16px, env(safe-area-inset-top, 0px));
+    display: flex; justify-content: center; gap: 22px; pointer-events: none;
+    text-shadow: 0 0 3px var(--bg), 0 0 8px var(--bg), 0 0 14px var(--bg);
+  }
+  nav > * { pointer-events: auto; }
+  nav button, nav a {
+    all: unset; cursor: pointer; color: var(--muted); font: 500 11.5px var(--mono);
+    border-bottom: 1px solid transparent;
+  }
+  nav .here { color: var(--ink); cursor: default; }
+  nav button:hover, nav a:hover { color: var(--ink); }
+  nav button:focus-visible, nav a:focus-visible, .copy a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  .copy {
+    position: fixed; z-index: 2; bottom: max(28px, env(safe-area-inset-bottom, 0px));
+    left: max(clamp(16px, 10vw, 140px), env(safe-area-inset-left, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    max-width: 62ch; pointer-events: none;
+    text-shadow: 0 0 3px var(--bg), 0 0 8px var(--bg), 0 0 14px var(--bg);
+  }
+  .copy p { margin: 0; }
+  .copy .verse { color: var(--muted); margin-bottom: 1.4em; }
+  .copy .caret { display: inline-block; width: 0.6em; height: 1em; margin-left: 0.2em; vertical-align: -0.15em; background: var(--muted); animation: blink 1.15s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .copy a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; pointer-events: auto; }
+  .copy a:hover { text-decoration-color: var(--ink); }
+  .copy .links { margin-top: 1.4em; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .copy .caret { animation: none; } }
+  @media (max-width: 520px) { .copy { font-size: 11.5px; } }
+</style>
+
+<canvas id="art" aria-label="An animated koi pond made of ASCII tiles. Click to drop food; move the pointer to stir the water." role="img"></canvas>
+
+<nav>
+  <span class="here">pond</span>
+  <button id="feed" type="button">feed</button>
+  <button id="theme" type="button">light</button>
+</nav>
+
+<div class="copy">
+  <p class="verse">every ripple is four glyphs,<br>every fish is a few hundred tiles<span class="caret"></span></p>
+  <p>Click the water to drop food. Move the pointer to stir it.</p>
+  <p>The koi school with boids rules; the rings are a height map drawn with / \ | and -.</p>
+  <p class="links"><a href="https://github.com/abhirajprasad/ascii" target="_blank" rel="noopener">source on github</a></p>
+</div>
+<!-- script -->

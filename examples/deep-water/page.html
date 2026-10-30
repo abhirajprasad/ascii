@@ -1,0 +1,138 @@
+<title>Deep Water</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  /* A chat home screen at the bottom of the sea: the art runs behind everything, glass floats on it. */
+  :root {
+    color-scheme: dark;
+    --bg: #050709;
+    --ink: #eaf0f4;
+    --muted: #8a96a2;
+    --faint: #5c6772;
+    --line: rgba(190, 212, 232, 0.15);
+    --glass: rgba(9, 13, 18, 0.58);
+    --mint: #7fe9cf;
+    --lilac: #aba8ff;
+    --sans: Geist, "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); overflow: hidden; }
+  #art { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .rail {
+    position: fixed; top: 0; bottom: 0; left: 0; width: 56px; z-index: 2;
+    border-right: 1px solid var(--line); background: rgba(5, 7, 9, 0.5);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding-block: max(14px, env(safe-area-inset-top, 0px)) 14px;
+    font: 500 14px var(--mono); color: var(--muted);
+  }
+  .rail span { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; }
+  .rail .mark { color: var(--mint); margin-bottom: 8px; }
+  .rail .on { background: rgba(190, 212, 232, 0.1); color: var(--ink); }
+
+  .creature {
+    position: fixed; z-index: 3;
+    top: max(14px, env(safe-area-inset-top, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--glass);
+    backdrop-filter: blur(10px);
+  }
+  .creature button {
+    all: unset; cursor: pointer; padding: 6px 12px; border-radius: 7px;
+    font: 500 12px var(--mono); color: var(--muted);
+  }
+  .creature button[aria-pressed="true"] { background: rgba(190, 212, 232, 0.14); color: var(--ink); }
+  .creature button:focus-visible, .chips button:focus-visible, .send:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+
+  main {
+    position: fixed; inset: 0; z-index: 1; display: grid; place-content: center; justify-items: center; gap: 22px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    pointer-events: none;
+  }
+  main > * { pointer-events: auto; }
+  .hello { display: flex; align-items: center; gap: 9px; font: 400 12px var(--mono); color: var(--muted); letter-spacing: 0.01em; }
+  .hello i { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); }
+
+  h1 {
+    margin: 0; min-height: 1.2em; text-align: center; text-wrap: balance;
+    font-weight: 300; font-size: clamp(30px, 4.6vw, 52px); letter-spacing: -0.035em; line-height: 1.12;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--mint), var(--lilac));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  h1 .caret { display: inline-block; width: 0.05em; height: 0.92em; margin-left: 0.05em; vertical-align: -0.1em; background: var(--muted); animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  form {
+    width: min(620px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 18px; background: var(--glass);
+    backdrop-filter: blur(16px) saturate(1.2); box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  }
+  textarea {
+    display: block; width: 100%; box-sizing: border-box; resize: none; border: 0; outline: 0; background: transparent;
+    padding: 18px 20px 6px; color: var(--ink); font: 400 16px/1.45 var(--sans);
+  }
+  textarea::placeholder { color: var(--muted); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px 12px 20px; font: 400 11px var(--mono); color: var(--faint); }
+  .send {
+    all: unset; cursor: pointer; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
+    border: 1px solid var(--line); color: var(--ink); font: 500 15px var(--mono); background: rgba(190, 212, 232, 0.08);
+  }
+  .send:hover { background: rgba(190, 212, 232, 0.16); }
+
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .chips button {
+    all: unset; cursor: pointer; padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px;
+    font: 400 12px var(--mono); color: var(--muted); background: rgba(9, 13, 18, 0.5); backdrop-filter: blur(8px);
+  }
+  .chips button:hover { color: var(--ink); border-color: rgba(190, 212, 232, 0.32); }
+
+  footer {
+    position: fixed; z-index: 1; left: 0; right: 0; bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    text-align: center; font: 400 11px var(--mono); color: var(--faint);
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  @media (max-width: 720px) { .rail { display: none; } }
+  @media (prefers-reduced-motion: reduce) { h1 .caret { animation: none; } }
+</style>
+
+<canvas id="art" aria-label="Jellyfish made of ASCII characters drifting through dark water" role="img"></canvas>
+
+<nav class="rail" aria-hidden="true">
+  <span class="mark">@</span>
+  <span class="on">+</span>
+  <span>~</span>
+  <span>#</span>
+  <span>%</span>
+</nav>
+
+<div class="creature" role="group" aria-label="Creature">
+  <button id="c-jellyfish" type="button" aria-pressed="true">jellyfish</button>
+  <button id="c-manta" type="button" aria-pressed="false">manta</button>
+</div>
+
+<main>
+  <div class="hello"><i></i><span id="hello">Good evening</span></div>
+  <h1 aria-live="off"><span id="line"></span><span class="caret"></span></h1>
+  <form id="composer">
+    <textarea id="prompt" rows="2" aria-label="Your prompt" placeholder="Ask the deep anything..."></textarea>
+    <div class="row">
+      <span id="status">enter to send, shift + enter for a new line</span>
+      <button class="send" type="submit" aria-label="Send">&#8599;</button>
+    </div>
+  </form>
+  <div class="chips">
+    <button type="button">/explore an idea</button>
+    <button type="button">/tighten my writing</button>
+    <button type="button">/plan a release</button>
+    <button type="button">/read a paper</button>
+  </div>
+</main>
+
+<footer>Preview. Nothing you type leaves this tab.</footer>
+<!-- script -->

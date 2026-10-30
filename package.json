@@ -1,0 +1,43 @@
+{
+  "name": "@abhirajprasad/ascii",
+  "version": "0.1.0",
+  "description": "A zero-dependency engine for making really good ASCII art: keycap tiles, dither, halftone, contour glyphs, a tiny 3D rasterizer, and animated subjects.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": "github:abhirajprasad/ascii",
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "ascii": "./dist/cli.js"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.js.map",
+    "dist/cli.js",
+    "dist/types",
+    "docs/CRAFT.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "prepare": "node scripts/build.mjs --lib --types",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch --serve",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/build.mjs --lib && node --test \"test/*.test.mjs\"",
+    "capture": "node scripts/capture.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

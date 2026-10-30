@@ -1,0 +1,72 @@
+<title>Four Effects</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Four specimens on a black bench, labeled like plates in a type foundry's catalog. */
+  :root {
+    color-scheme: dark;
+    --bg: #08090a;
+    --panel: #020203;
+    --ink: #e8e8e4;
+    --muted: #84857f;
+    --rule: #24262a;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 12px/1.6 var(--mono); }
+  .wrap {
+    max-width: 1320px; margin: 0 auto;
+    padding-block: max(20px, env(safe-area-inset-top, 0px)) 28px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; margin-bottom: 16px; }
+  h1 { margin: 0; font: 600 13px var(--mono); letter-spacing: 0.01em; }
+  header p { margin: 0; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  figure { margin: 0; min-width: 0; border: 1px solid var(--rule); background: var(--panel); display: flex; flex-direction: column; }
+  figure button {
+    all: unset; display: block; cursor: zoom-in; position: relative;
+    aspect-ratio: 5 / 4; max-height: 62vh; width: 100%;
+  }
+  figure button:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  figcaption {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px;
+    padding: 9px 12px; border-top: 1px solid var(--rule); color: var(--muted);
+  }
+  figcaption b { color: var(--ink); font-weight: 500; }
+  figcaption code { font: inherit; overflow-wrap: anywhere; }
+
+  /* One specimen fills the window. */
+  figure.big { position: fixed; inset: 0; z-index: 5; border: 0; }
+  figure.big button { flex: 1; aspect-ratio: auto; max-height: none; cursor: zoom-out; }
+  @media (max-width: 720px) { .grid { grid-template-columns: minmax(0, 1fr); } figure button { aspect-ratio: 1; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Four Effects</h1>
+    <p>One engine, four ways to draw. Click a plate to enlarge it; press Esc to go back.</p>
+  </header>
+  <div class="grid">
+    <figure>
+      <button type="button" aria-label="Enlarge the pink dithered butterfly"><canvas id="a" role="img" aria-label="A pink butterfly beating its wings, drawn with ordered dither, with cream specks streaming past"></canvas></button>
+      <figcaption><b>Plate 1. Ordered dither</b><code>dither({ matrix: 'bayer4', tint: 'field' })</code></figcaption>
+    </figure>
+    <figure>
+      <button type="button" aria-label="Enlarge the blue rocket"><canvas id="b" role="img" aria-label="A blue spinning rocket with a flickering plume, drawn with scanline dither"></canvas></button>
+      <figcaption><b>Plate 2. Scanline dither</b><code>dither({ matrix: 'scanline', palette: 'azure' })</code></figcaption>
+    </figure>
+    <figure>
+      <button type="button" aria-label="Enlarge the globe"><canvas id="c" role="img" aria-label="A rotating Earth in monochrome dots with a hard day-night line"></canvas></button>
+      <figcaption><b>Plate 3. Newsprint globe</b><code>dither({ matrix: 'scanline', palette: 'bone' })</code></figcaption>
+    </figure>
+    <figure>
+      <button type="button" aria-label="Enlarge the mint rabbit"><canvas id="d" role="img" aria-label="A rabbit made of glowing mint keys, hopping and turning, lit from below"></canvas></button>
+      <figcaption><b>Plate 4. Chroma keys</b><code>keycap({ palette: 'mint', accentChance: 0.05 })</code></figcaption>
+    </figure>
+  </div>
+</div>
+<!-- script -->
