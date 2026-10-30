@@ -14,6 +14,10 @@ A zero-dependency engine for making really good ASCII art: keycap tiles, ordered
 | --- | --- |
 | ![A butterfly drawn in braille characters](docs/media/braille.png) | ![Earth drawn in halftone dots, showing Africa and South America](docs/media/halftone.png) |
 
+| Asciibot: ask for art in plain English |
+| --- |
+| ![A chat asking for a cat in mosaic, answered with a floating cat made of colored tiles](docs/media/asciibot.gif) |
+
 ## Install
 
 ```bash
@@ -73,6 +77,39 @@ npx ascii still butterfly --style braille --palette rose
 npx ascii image photo.png --style glyphs --cols 100 --format svg --out photo.svg
 ```
 
+```bash
+npx ascii draw "a rocket in halftone, make it pink"
+```
+
+### From plain English
+
+An `ArtSpec` is a complete, serializable description of a piece of art. `parsePrompt` writes one from a sentence with no model involved, and tells you how much of the sentence it understood:
+
+```ts
+import { createArt, mount, parsePrompt } from '@abhirajprasad/ascii';
+
+const { spec, confidence, reply } = parsePrompt('a pink butterfly in dither');
+// confidence: 'sure' means every word was understood; 'guess' or 'none' means ask a smarter brain
+
+const { scene, style } = await createArt(spec);
+mount(canvas, { scene, style });
+
+// Follow-ups take the current art and change only what was asked for.
+const next = parsePrompt('bigger, and in braille', spec);
+```
+
+To draw anything at all, let a model be the art director. `DIRECTOR_RULES` is plain text with no vendor assumptions, so any LLM that can return JSON will do:
+
+```ts
+import { directorTurns, readDirectorReply } from '@abhirajprasad/ascii';
+
+const turns = directorTurns(history, 'a dragon made of crystal', currentSpec);
+const json = await yourModel(turns);               // [{ role, content }, ...]
+const { reply, art } = readDirectorReply(json);    // validated: bad fields fall back, SVGs are cleaned
+```
+
+It answers with one of the built-in scenes, some text, an SVG drawing, or a 3D model assembled from spheres, boxes, cylinders, cones, and tori.
+
 ## Styles
 
 | Style | What it does | Inspired by |
@@ -93,7 +130,11 @@ Palettes: `phosphor`, `ice`, `violet`, `mint`, `ember`, `rose`, `bone`, `azure`,
 
 ## Scenes
 
-Ready to use: `deepWater`, `pond`, `butterflyScene`, `rocketScene`, `globeScene`, `bunnyScene`, `imageScene`, `textScene`.
+Ready to use:
+
+- **Subjects:** `deepWater`, `pond`, `butterflyScene`, `rocketScene`, `globeScene`, `bunnyScene`
+- **Procedural:** `fireScene`, `rainScene`, `starsScene`, `plasmaScene`, `tunnelScene`, `wavesScene`
+- **From your data:** `imageScene`, `textScene`, `spriteScene` (a picture that floats, sways, waves, or spins), `modelScene` (a 3D model from a list of solids)
 
 A scene is anything with a `render(field, t)`. Paint the field directly for procedural art:
 
@@ -138,10 +179,11 @@ const planet = {
 
 ## The demos
 
-Each one is a single self-contained file. They rebuild each post's look with the engine, using original scenes and copy.
+Each one is a single self-contained file. The first is a chatbot that uses everything else; the rest rebuild each post's look with the engine, using original scenes and copy.
 
 | Demo | After | Try |
 | --- | --- | --- |
+| `asciibot` | | Ask for "a cat in mosaic", then "make it pink". Published as an Artifact it can also ask Claude to draw things it doesn't know, like "a dragon made of crystal" |
 | `deep-water` | [@MarceloDesignX](https://x.com/MarceloDesignX/status/2116030512267513983) | Switch between jellyfish and manta; the composer's glass blurs whatever swims behind it |
 | `koi-pond` | [@daoho04](https://x.com/daoho04/status/2114490773043388518) | Click to feed the fish, move to stir the water, switch to the light theme |
 | `keycap-studio` | [@kail_designs](https://x.com/kail_designs/status/2116100121020838226) | Upload a photo, turn every dial, then press Visualize for ten mockup layouts |

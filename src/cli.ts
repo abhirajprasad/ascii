@@ -14,7 +14,10 @@ import { dither, halftone } from './styles/dither.js';
 import { glyphs } from './styles/glyphs.js';
 import { keycap } from './styles/keycap.js';
 import { blocks, braille } from './styles/subcell.js';
-import { toAnsi, toHtml, toSvg, toText } from './surfaces/text.js';
+import { fieldToText, toAnsi, toHtml, toSvg, toText } from './surfaces/text.js';
+import { makeScene, makeStyle } from './chat/build.js';
+import { parsePrompt } from './chat/parse.js';
+import { describeSpec } from './chat/spec.js';
 
 const SCENES: Record<string, () => Scene> = {
   koi: () => pond({ koi: 6 }),
@@ -44,6 +47,7 @@ const USAGE = `ascii: make ASCII art in your terminal
   ascii play <scene> [--style s] [--palette p] [--fps 24]
   ascii still <scene> [--style s] [--palette p] [--cols n] [--rows n] [--format f] [--out file]
   ascii image <file.png> [--style s] [--palette p] [--cols n] [--format f] [--out file]
+  ascii draw "a rocket in dither, make it pink" [--cols n] [--rows n] [--format f]
 
   scenes    ${Object.keys(SCENES).join(', ')}
   styles    ${Object.keys(STYLES).join(', ')}
@@ -66,11 +70,37 @@ function fail(message: string): never {
   process.exit(1);
 }
 
+/** Plain English to art, using only the local parser. Pictures of everyday things need a browser's emoji font. */
+function draw(prompt: string, flags: Record<string, string>): void {
+  const parsed = parsePrompt(prompt);
+  if (!parsed.spec) fail(parsed.reply || `Couldn't work out how to draw "${prompt}".`);
+  const { subject } = parsed.spec;
+  if (subject.kind === 'emoji' || subject.kind === 'text') {
+    fail(`Drawing ${describeSpec(parsed.spec)} needs a browser. Try a built-in subject here, like a rocket or a koi pond.`);
+  }
+  const base = makeStyle(parsed.spec);
+  // Terminal cells are twice as tall as wide, whatever the look assumes about its own cells.
+  const style: Style = { ...base, geometry: () => ({ ...base.geometry(), cellH: base.geometry().cellW * 2 }) };
+  const cols = Number(flags.cols ?? process.stdout.columns ?? 100);
+  const rows = Number(flags.rows ?? (process.stdout.rows ?? 40) - 1);
+  const { cells, field } = render({ scene: makeScene(parsed.spec), style, cols, rows, warmup: 3 });
+  const format = flags.format ?? 'ansi';
+  const out = format === 'text' ? fieldToText(field, { cols })
+    : format === 'svg' ? toSvg(cells, base.geometry(), base.look())
+    : format === 'html' ? toHtml(cells, base.look())
+    : toAnsi(cells, base.look());
+  process.stdout.write(`${out}\n`);
+}
+
 function main(): void {
   const { pos, flags } = parse(process.argv.slice(2));
   const [command, target] = pos;
   if (!command || command === 'help' || 'help' in flags) {
     process.stdout.write(`${USAGE}\n`);
+    return;
+  }
+  if (command === 'draw') {
+    draw(pos.slice(1).join(' '), flags);
     return;
   }
   const palette = (flags.palette ?? 'phosphor') as PaletteName;

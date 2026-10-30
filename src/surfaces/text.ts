@@ -1,5 +1,7 @@
 import { CellBuffer, CellGeometry, Look, SHAPE_DOT, SHAPE_NONE, SHAPE_RECT } from '../cells.js';
 import { flatten, hex, RGB, unpack } from '../color.js';
+import { Field } from '../field.js';
+import { Ramp, ramp, RampName } from '../ramps.js';
 
 /** Plain text. Drops all color: use a ramp-based style, since tile shapes have no text form. */
 export function toText(cells: CellBuffer): string {
@@ -12,6 +14,38 @@ export function toText(cells: CellBuffer): string {
     }
     lines.push(line.trimEnd());
   }
+  return lines.join('\n');
+}
+
+/**
+ * Plain ASCII of a Field at a text-friendly size, whatever style drew it. Dots and
+ * tiles have no text form, so this reads tone straight from the Field.
+ */
+export function fieldToText(field: Field, options: { cols?: number; ramp?: RampName | string | Ramp; cellAspect?: number } = {}): string {
+  const cols = Math.min(field.cols, options.cols ?? 100);
+  const rmp = ramp(options.ramp ?? 'key');
+  const worldW = field.viewAspect * 2;
+  const rows = Math.max(1, Math.round((cols / worldW) * (2 / (options.cellAspect ?? 2))));
+  const lines: string[] = [];
+  for (let row = 0; row < rows; row++) {
+    const y0 = Math.floor((row / rows) * field.rows), y1 = Math.max(y0 + 1, Math.floor(((row + 1) / rows) * field.rows));
+    let line = '';
+    for (let col = 0; col < cols; col++) {
+      const x0 = Math.floor((col / cols) * field.cols), x1 = Math.max(x0 + 1, Math.floor(((col + 1) / cols) * field.cols));
+      let sum = 0, count = 0;
+      for (let y = y0; y < y1 && y < field.rows; y++) {
+        for (let x = x0; x < x1 && x < field.cols; x++) {
+          sum += field.luma(y * field.cols + x);
+          count++;
+        }
+      }
+      const v = count ? sum / count : 0;
+      line += v < 0.04 ? ' ' : String.fromCodePoint(rmp.pick(v ** 0.8));
+    }
+    lines.push(line.trimEnd());
+  }
+  while (lines.length && !lines[0]) lines.shift();
+  while (lines.length && !lines[lines.length - 1]) lines.pop();
   return lines.join('\n');
 }
 

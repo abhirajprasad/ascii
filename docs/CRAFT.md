@@ -99,6 +99,22 @@ Keeping these apart is the main design idea. Any scene works with any style, and
 
 **Give type a halo.** When fish swim under text, a `text-shadow` in the background color keeps it legible without a visible box.
 
+### Taking requests
+
+**Try the free brain first.** A local parser handles anything it fully understands, instantly and at no cost, and reports `sure`, `guess`, or `none`. Only `guess` and `none` go to a model. Most requests in a session are follow-ups like "bigger" that need no model at all.
+
+**Keep the model's job small.** A model doesn't draw cells. It chooses a look and either names a scene or supplies a picture, and the engine does the rest. That keeps the output in style whatever the model does, and a bad field falls back rather than ruining the drawing.
+
+**Tell the model that tone is what gets drawn.** Left alone, models draw outlines and dark fills, which vanish. Ask for bright shapes with gradients, and details far bigger than feels natural: at 40 characters tall, a feature under a tenth of the subject is gone.
+
+**Normalize what comes back.** Stretch a picture's tones to the full range, keep a floor so dark parts of a cutout stay visible as dark keys, crop to its bounds, and center and scale a model to fit. A sloppy answer then still fills the frame.
+
+**Pictures need holding back.** A stretched picture is mostly bright, and a screen of bright keys is mush. Pull the gamma up and invert fewer keys than you would for a lit 3D subject.
+
+**Mind the emoji shortcut.** Drawn large, an emoji is a clean, high-contrast, full-color subject, and mosaic tiles flatter it. It's a great free answer for common nouns, but it depends on the viewer's font, so it won't match across platforms.
+
+**Say what changed.** A follow-up's reply should name the change ("Bigger.") rather than describe the art again. They can see the art.
+
 ## Performance
 
 The work is almost all in painting, and the fixes are not the obvious ones.
@@ -116,6 +132,9 @@ The work is almost all in painting, and the fixes are not the obvious ones.
 - **Sphere mapping is easy to mirror.** With `u` running one way around the mesh, east lands on the left and Africa looks wrong in a way that's hard to name. Check a real landmark.
 - **Equal alpha must overwrite.** A stamp brush that only writes when its alpha is greater than what's there can't draw a fish's eye on an opaque fish.
 - **Size mockups by height.** A poster sized `62vh` wide at a tall aspect ratio overflows its stage, and the title is the part that gets cut off.
+- **Grids need `minmax(0, 1fr)`.** An implicit grid column grows to fit its widest child, so one scrolling row of chips stretched a whole phone layout off screen.
+- **Draw a ring with a step, not a bump.** Covered above, but it's the mistake to make first: a bump draws double lines.
+- **Noise makes fire only if it's stretched.** Round noise scrolling upward reads as dirt. Stretch it tall, let it overpower the flame's silhouette near the top, and it turns into tongues.
 
 ## Recipes
 

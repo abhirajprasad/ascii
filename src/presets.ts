@@ -1,6 +1,6 @@
 import { Style } from './cells.js';
 import { contour } from './styles/contour.js';
-import { dither } from './styles/dither.js';
+import { dither, DitherOptions } from './styles/dither.js';
 import { keycap, KeycapOptions } from './styles/keycap.js';
 import { layered } from './styles/layered.js';
 import { tiles } from './styles/tiles.js';
@@ -78,13 +78,13 @@ export function pondStyle(theme: 'dark' | 'light' = 'dark', tile = 15): Style {
 }
 
 /** Pink-on-black ordered dither with cream highlights. */
-export const ditherPrint = () =>
-  dither({ tint: 'field', matrix: 'bayer4', tile: 4, dot: 0.86, shape: 'square', contrast: 1.08, gamma: 0.72, lift: 0.1, background: '#090a0d' });
+export const ditherPrint = (o: Partial<DitherOptions> = {}) =>
+  dither({ tint: 'field', matrix: 'bayer4', tile: 4, dot: 0.86, shape: 'square', contrast: 1.08, gamma: 0.72, lift: 0.1, background: '#090a0d', ...o });
 
 /** Blue CRT dither whose shadows break into scanlines. */
-export const ditherCrt = () =>
-  dither({ palette: 'azure', matrix: 'scanline', tile: 3.5, dot: 0.8, shape: 'square', contrast: 1.06, gamma: 0.85, background: '#02060b', glow: 0.14 });
+export const ditherCrt = (o: Partial<DitherOptions> = {}) =>
+  dither({ palette: 'azure', matrix: 'scanline', tile: 3.5, dot: 0.8, shape: 'square', contrast: 1.06, gamma: 0.85, background: '#02060b', glow: 0.14, ...o });
 
 /** Monochrome scanline dither for planets and photos. */
-export const ditherNewsprint = () =>
-  dither({ palette: 'bone', matrix: 'scanline', tile: 3.5, dot: 0.78, shape: 'square', contrast: 1.1, gamma: 0.72, background: '#030303' });
+export const ditherNewsprint = (o: Partial<DitherOptions> = {}) =>
+  dither({ palette: 'bone', matrix: 'scanline', tile: 3.5, dot: 0.78, shape: 'square', contrast: 1.1, gamma: 0.72, background: '#030303', ...o });
